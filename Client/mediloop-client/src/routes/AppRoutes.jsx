@@ -16,8 +16,9 @@ import Appointments from '../pages/patient/Appointments';
 function AppRoutes() {
   return (
     <Routes>
-      {/** public routes */}
-      <Route path="/" element={<Navigate to="/login" replace />} /> {/** fallback route */}
+      {/** CHANGE: Redirect the root directly to the dashboard instead of login */}
+      <Route path="/" element={<Navigate to="/patient" replace />} /> 
+      
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/support" element={<Support />} />
@@ -26,7 +27,6 @@ function AppRoutes() {
       <Route element={<ProtectedRoute />}> 
         <Route path="/onboarding" element={ <PatientOnboarding />} />
       </Route>
-
 
       {/**Patient routes */}
       <Route element={<RoleRoute allowedRoles={["Patient"]} />}>
@@ -37,12 +37,10 @@ function AppRoutes() {
         </Route>
       </Route>
 
-
       {/** Doctor routes */}
       <Route element={<RoleRoute allowedRoles={["Doctor"]} />}>
         <Route path="/doctor" element={<DoctorDashboard />} />
       </Route>
-
 
       {/**Admin routes */}
       <Route element={<RoleRoute allowedRoles={["Admin"]} />}>
@@ -51,6 +49,5 @@ function AppRoutes() {
     </Routes>
   );
 }
-
 
 export default AppRoutes;
