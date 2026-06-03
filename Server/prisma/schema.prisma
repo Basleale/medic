@@ -1,0 +1,80 @@
+// Server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      String   // "Patient", "Doctor", "Admin"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Patient Specific Fields
+  phoneNumber      String?  @unique
+  age              Int?
+  gender           String?
+  bloodType        String?
+  height           Float?
+  weight           Float?
+  allergies        String[]
+  emergencyContact Json?
+
+  // Doctor Specific Fields
+  department        String?
+  staffID           String?  @unique
+  hourlyRate        Float    @default(100)
+  rating            Float    @default(0)
+  specialization    String?
+  yearsOfExperience Int      @default(0)
+
+  // Admin Specific Fields
+  adminID     String?  @unique
+  permissions String[]
+
+  // Relationships
+  appointmentsAsPatient Appointment[]  @relation("PatientAppointments")
+  appointmentsAsDoctor  Appointment[]  @relation("DoctorAppointments")
+  availability          Availability?
+}
+
+model Appointment {
+  id          String   @id @default(uuid())
+  patientId   String
+  doctorId    String
+  startTime   DateTime
+  endTime     DateTime
+  status      String   @default("Confirmed") // "Confirmed", "Completed", "Cancelled", "Rescheduled", "Pending"
+  vistType    String   @default("In-Person")
+  location    String?
+  reason      String
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  patient User @relation("PatientAppointments", fields: [patientId], references: [id])
+  doctor  User @relation("DoctorAppointments", fields: [doctorId], references: [id])
+}
+
+model Availability {
+  id             String     @id @default(uuid())
+  doctorId       String     @unique
+  startDate      DateTime
+  endDate        DateTime
+  weeklySchedule Json
+  blackoutDates  DateTime[]
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  doctor User @relation(fields: [doctorId], references: [id])
+}
