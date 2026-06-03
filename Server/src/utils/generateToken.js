@@ -1,15 +1,14 @@
 import jwt from 'jsonwebtoken';
 
-//gernarting token for secure communtication - sent back with every req from client
 const generateToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
+      id: user.id, // CHANGED: Prisma uses 'id' instead of Mongoose's '_id'
       role: user.role,
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: "7d", //token expiration
+      expiresIn: "7d",
     }
   );
 };
