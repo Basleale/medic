@@ -1,45 +1,42 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext(); 
+const AuthContext = createContext(); // creating data pipline thing
 
 export function AuthProvider({ children }) {
-  // Hardcode a mock user so you are ALWAYS "logged in"
-  const [user, setUser] = useState({
-    id: "mock-id-123",
-    firstName: "Jane",
-    lastName: "Doe",
-    role: "Patient", // NOTE: Change this to "Doctor" or "Admin" to view the other dashboards!
-    email: "patient@test.com",
-    phoneNumber: "+251 911 000 000",
-    gender: "Female",
-    bloodType: "O+",
-    age: 28,
-    height: 165,
-    weight: 60,
-    allergies: ["Penicillin"],
-    emergencyContact: {
-      name: "John Doe",
-      relationship: "Brother",
-      phone: "+251 911 111 111"
+  const [user, setUser] = useState(() => {
+    const storedUser = localStorage.getItem("user");
+    return storedUser ? JSON.parse(storedUser) : null;
+  }); //initial empty state or load from localstorage
+
+  const [loading, setLoading] = useState(null);
+
+  //set user form localstorage for different pages
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+    if(storedUser){
+      setUser(JSON.parse(storedUser));
     }
-  });
 
-  // Set loading to false immediately to bypass loading screens
-  const [loading, setLoading] = useState(false);
+    setLoading(false);
+  }, []);
 
-  // Mock logout function so the button doesn't crash the app
+
+  //LOGOUT HANDLER - maybe I will adjust this so that the keep me logged in/remember me checkbox has an effect on this
   const logout = () => {
-    console.log("Logout clicked - Mock user active. Returning to /login");
+    localStorage.removeItem("token");
+
+    localStorage.removeItem("user");
+
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, logout }}> 
-      {children}
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}> {/** this allows us to pass down data to all children */}
+      {children} {/** <App /> */}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth() { 
+export function useAuth() { //custom hook to access the data --- {user, setUser} = useAuth()
   return useContext(AuthContext);
 }

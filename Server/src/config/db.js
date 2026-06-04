@@ -1,17 +1,13 @@
-// Server/src/config/db.js
-import { PrismaClient } from '@prisma/client';
+import mongoose from 'mongoose';
 
-const prisma = new PrismaClient();
-
-const connectDB = async () => {
-    try {
-        await prisma.$connect();
-        console.log("Neon PostgreSQL connected successfully!");
-    } catch (error) {
+const connectDB = async () =>{
+    try{
+        await mongoose.connect(process.env.MONGO_URI);
+        console.log("MongoDB connected!");
+    }catch (error){
         console.error("Database Connection Failed!", error.message);
         process.exit(1);
     }
 };
 
-export { prisma };
 export default connectDB;
